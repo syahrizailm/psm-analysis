@@ -41,26 +41,18 @@ function initializeSummaryTable(
   }
 }
 
+let sampleNumber = 0;
+
 // Read the raw data file and analyze it.
 function readRawFile(csvFilePath: string): void {
-  let sampleNumber = 0;
-
   createReadStream(csvFilePath)
     .pipe(parse({ columns: headers }))
-    .on('data', (row: Row) => {
-      // Skip the first row, which is the header.
-      if (row['sample number'] === 'sample number') return;
-
-      sampleNumber++;
-      analyzeRow(row);
-    })
-    .on('end', () => {
-      analyzeData(summaryTable, sampleNumber);
-    });
+    .on('data', analyzeRow)
+    .on('end', analyzeData);
 }
 
 // Analyze the data and print the result.
-function analyzeData(summaryTable: SummaryRow[], sampleNumber: number){
+function analyzeData(){
   // To get the percentage, we need to divide the number of people who answered the question by the total number of people.
   summaryTable = summaryTable.map((row: SummaryRow) => {
     return {
@@ -84,6 +76,7 @@ function analyzeData(summaryTable: SummaryRow[], sampleNumber: number){
   // 妥協価格 is intersection of '高すぎて買えない' and '安すぎて買えない'
   let compromisePrice = findIntersection(summaryTable, '高すぎて買えない', '安すぎて買えない');
 
+  // It looks like the original paper round up the price.
   console.log('最低品質保証価格', Math.round(lowestQualityPrice));
   console.log('最高価格', Math.round(highestPrice));
   console.log('理想価格', Math.round(idealPrice));
@@ -108,6 +101,11 @@ function findIntersection(
 
 // Analyze each row of the data.
 function analyzeRow(row: Row){
+  // Skip the first row, which is the header.
+  if (row['高い'] === '高い') return;
+
+  sampleNumber += 1;
+
   handleCheap(parseInt(row['安い']));
   handleExpensive(parseInt(row['高い']));
   handleTooCheap(parseInt(row['安すぎる']));
