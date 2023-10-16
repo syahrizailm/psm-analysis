@@ -77,10 +77,10 @@ function analyzeData(){
   let compromisePrice = findIntersection(summaryTable, '高すぎて買えない', '安すぎて買えない');
 
   // It looks like the original paper round up the price.
-  console.log('最低品質保証価格', Math.round(lowestQualityPrice));
   console.log('最高価格', Math.round(highestPrice));
-  console.log('理想価格', Math.round(idealPrice));
   console.log('妥協価格', Math.round(compromisePrice));
+  console.log('理想価格', Math.round(idealPrice));
+  console.log('最低品質保証価格', Math.round(lowestQualityPrice));
 }
 
 function findIntersection(
